@@ -1,0 +1,97 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Function to calculate letter marks and GPA
+def calculate_letter_marks(average):
+    if average >= 90:
+        return 'A', 4.0
+    elif average >= 80:
+        return 'B', 3.0
+    elif average >= 70:
+        return 'C', 2.0
+    elif average >= 60:
+        return 'D', 1.0
+    else:
+        return 'F', 0.0
+
+# Function to add or edit a marks
+def add_marks():
+    subject = subject_entry.get().strip()
+    marks = marks_entry.get().strip()
+    
+    if not subject or not marks:
+        messagebox.showerror("Error", "Please enter both subject and marks.")
+        return
+    
+    try:
+        marks = float(marks)
+        if 0 <= marks <= 100:
+            marks[subject] = marks
+            update_listbox()
+            subject_entry.delete(0, tk.END)
+            marks_entry.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", "marks must be between 0 and 100.")
+    except ValueError:
+        messagebox.showerror("Error", "marks must be a numeric value.")
+
+# Function to display average, letter marks, and GPA
+def display_summary():
+    if not marks:
+        messagebox.showinfo("Summary", "No marks available.")
+        return
+    
+    average = sum(marks.values()) / len(marks)
+    letter, gpa = calculate_letter_marks(average)
+    summary = f"Average marks: {average:.2f}\nLetter marks: {letter}\nGPA: {gpa:.2f}"
+    messagebox.showinfo("Summary", summary)
+
+# Function to update the listbox
+def update_listbox():
+    marks_listbox.delete(0, tk.END)
+    for subject, marks in marks.items():
+        marks_listbox.insert(tk.END, f"{subject}: {marks:.2f}")
+
+# Function to delete a selected subject
+def delete_marks():
+    selected = marks_listbox.curselection()
+    if not selected:
+        messagebox.showerror("Error", "Please select a subject to delete.")
+        return
+    
+    subject = marks_listbox.get(selected).split(":")[0]
+    del marks[subject]
+    update_listbox()
+
+# Initialize the main window
+root = tk.Tk()
+root.title("Student marks Tracker")
+
+marks = {}
+
+# Widgets for adding/editing marks
+tk.Label(root, text="Subject:", font=("Arial", 12)).grid(row=0, column=0, padx=10, pady=5, sticky="e")
+subject_entry = tk.Entry(root, font=("Arial", 12))
+subject_entry.grid(row=0, column=1, padx=10, pady=5)
+
+tk.Label(root, text="marks:", font=("Arial", 12)).grid(row=1, column=0, padx=10, pady=5, sticky="e")
+marks_entry = tk.Entry(root, font=("Arial", 12))
+marks_entry.grid(row=1, column=1, padx=10, pady=5)
+
+add_button = tk.Button(root, text="Add/Edit marks", font=("Arial", 12), command=add_marks)
+add_button.grid(row=2, column=0, columnspan=2, pady=10)
+
+# Listbox to display marks
+tk.Label(root, text="marks:", font=("Arial", 12)).grid(row=3, column=0, columnspan=2)
+marks_listbox = tk.Listbox(root, width=30, height=10, font=("Arial", 12))
+marks_listbox.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+
+# Buttons for additional actions
+delete_button = tk.Button(root, text="Delete Selected", font=("Arial", 12), command=delete_marks)
+delete_button.grid(row=5, column=0, pady=10)
+
+summary_button = tk.Button(root, text="Show Summary", font=("Arial", 12), command=display_summary)
+summary_button.grid(row=5, column=1, pady=10)
+
+# Run the main application loop
+root.mainloop()
